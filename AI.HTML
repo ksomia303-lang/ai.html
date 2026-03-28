@@ -1,0 +1,1815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agents Assemble | Healthcare AI Hackathon 2026</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #030712;
+      --bg-secondary: #0c1222;
+      --bg-card: #111827;
+      --bg-elevated: #1a2332;
+      --fg-primary: #f0f4ff;
+      --fg-secondary: #8b9fc7;
+      --fg-muted: #4a5f8a;
+      --accent-primary: #00ffcc;
+      --accent-secondary: #00b4ff;
+      --accent-tertiary: #9d5cff;
+      --accent-warning: #ffb340;
+      --accent-danger: #ff4d6d;
+      --accent-success: #00e89d;
+      --border-color: #1e3048;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    html { scroll-behavior: smooth; }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-primary);
+      color: var(--fg-primary);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    h1, h2, h3, h4, h5, h6 { font-family: 'Space Grotesk', sans-serif; }
+    code, pre, .mono { font-family: 'JetBrains Mono', monospace; }
+
+    ::selection { background: var(--accent-primary); color: var(--bg-primary); }
+
+    /* Gradients */
+    .gradient-text {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .gradient-border {
+      position: relative;
+      background: var(--bg-card);
+      border-radius: 20px;
+    }
+
+    .gradient-border::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 21px;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary));
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .gradient-border:hover::before { opacity: 1; }
+
+    /* Glass Effect */
+    .glass {
+      background: linear-gradient(135deg, rgba(17, 24, 39, 0.85), rgba(26, 35, 50, 0.75));
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(30, 48, 72, 0.5);
+    }
+
+    /* Animations */
+    @keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-15px) rotate(2deg); } }
+    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.6; transform: scale(1.05); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes scaleIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+    @keyframes glow { 0%, 100% { filter: drop-shadow(0 0 5px currentColor); } 50% { filter: drop-shadow(0 0 25px currentColor); } }
+    @keyframes heartbeat { 0%, 100% { transform: scale(1); } 14% { transform: scale(1.15); } 28% { transform: scale(1); } 42% { transform: scale(1.08); } 56% { transform: scale(1); } }
+    @keyframes typing { from { width: 0; } to { width: 100%; } }
+    @keyframes blink { 50% { border-color: transparent; } }
+    @keyframes wave { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+    @keyframes ripple { to { transform: scale(4); opacity: 0; } }
+    @keyframes confetti { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+    @keyframes dash { to { stroke-dashoffset: -100; } }
+    @keyframes bounceIn { 0% { transform: scale(0); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+    .animate-float { animation: float 8s ease-in-out infinite; }
+    .animate-pulse-slow { animation: pulse 3s ease-in-out infinite; }
+    .animate-glow { animation: glow 2s ease-in-out infinite; }
+    .animate-heartbeat { animation: heartbeat 1.5s ease-in-out infinite; }
+    .animate-slide-up { animation: slideUp 0.6s ease-out forwards; }
+    .animate-slide-in { animation: slideIn 0.5s ease-out forwards; }
+    .animate-scale-in { animation: scaleIn 0.4s ease-out forwards; }
+    .animate-bounce-in { animation: bounceIn 0.5s ease-out forwards; }
+
+    .reveal { opacity: 0; transform: translateY(40px); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+    .reveal.active { opacity: 1; transform: translateY(0); }
+    .stagger-1 { transition-delay: 0.1s; }
+    .stagger-2 { transition-delay: 0.2s; }
+    .stagger-3 { transition-delay: 0.3s; }
+    .stagger-4 { transition-delay: 0.4s; }
+    .stagger-5 { transition-delay: 0.5s; }
+
+    /* Buttons */
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+      color: var(--bg-primary);
+      font-weight: 600;
+      padding: 12px 28px;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      font-family: 'Space Grotesk', sans-serif;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(0, 255, 204, 0.3); }
+    .btn-primary:active { transform: translateY(-1px); }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--fg-primary);
+      font-weight: 500;
+      padding: 12px 28px;
+      border-radius: 14px;
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .btn-secondary:hover { border-color: var(--accent-primary); background: rgba(0, 255, 204, 0.05); }
+
+    .btn-action {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-color);
+      color: var(--fg-primary);
+      padding: 10px 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      font-size: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-action:hover { border-color: var(--accent-primary); background: rgba(0, 255, 204, 0.1); transform: translateY(-2px); }
+    .btn-action.active { background: var(--accent-primary); color: var(--bg-primary); border-color: var(--accent-primary); }
+
+    /* Ripple Effect */
+    .ripple { position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.4); transform: scale(0); animation: ripple 0.6s linear; pointer-events: none; }
+
+    /* Status Indicators */
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      position: relative;
+    }
+
+    .status-dot::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      background: inherit;
+      opacity: 0.3;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .status-online { background: var(--accent-success); }
+    .status-processing { background: var(--accent-warning); }
+    .status-error { background: var(--accent-danger); }
+    .status-idle { background: var(--fg-muted); }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 24px;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .card:hover { border-color: rgba(0, 255, 204, 0.4); transform: translateY(-4px); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3); }
+
+    /* ECG Monitor */
+    .ecg-container { overflow: hidden; position: relative; }
+    .ecg-line { fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .ecg-normal { stroke: var(--accent-primary); filter: drop-shadow(0 0 8px var(--accent-primary)); }
+    .ecg-tachy { stroke: var(--accent-danger); filter: drop-shadow(0 0 8px var(--accent-danger)); }
+    .ecg-brady { stroke: var(--accent-warning); filter: drop-shadow(0 0 8px var(--accent-warning)); }
+    .ecg-wave { animation: wave 1.5s linear infinite; }
+
+    /* Code Block */
+    .code-block {
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 20px;
+      font-size: 12px;
+      overflow-x: auto;
+    }
+
+    .code-keyword { color: #c792ea; }
+    .code-string { color: #c3e88d; }
+    .code-number { color: #f78c6c; }
+    .code-boolean { color: #82aaff; }
+
+    /* Globe */
+    .globe-container { perspective: 1000px; }
+    .globe { 
+      transform-style: preserve-3d; 
+      animation: spin 20s linear infinite;
+    }
+
+    /* Chat */
+    .chat-message { animation: slideIn 0.3s ease-out; }
+    .typing-indicator span { width: 8px; height: 8px; background: var(--accent-primary); border-radius: 50%; animation: pulse 1.4s ease-in-out infinite; }
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+    /* Achievement */
+    .achievement-badge {
+      background: linear-gradient(135deg, rgba(157, 92, 255, 0.2), rgba(0, 180, 255, 0.2));
+      border: 1px solid rgba(157, 92, 255, 0.4);
+      border-radius: 12px;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: bounceIn 0.5s ease-out;
+    }
+
+    /* Progress Bar */
+    .progress-bar { height: 6px; background: var(--bg-elevated); border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); border-radius: 3px; transition: width 0.5s ease; }
+
+    /* Scrollbar */
+    .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: var(--bg-secondary); border-radius: 3px; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+    .custom-scroll::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
+
+    /* Confetti */
+    .confetti { position: fixed; width: 10px; height: 10px; top: -10px; animation: confetti 3s linear forwards; pointer-events: none; z-index: 9999; }
+
+    /* Vital Card */
+    .vital-card {
+      background: linear-gradient(135deg, var(--bg-card), var(--bg-elevated));
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 20px;
+      transition: all 0.3s;
+    }
+
+    .vital-card:hover { transform: translateY(-4px); box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3); }
+    .vital-card.alert { border-color: var(--accent-danger); animation: pulse 1s ease-in-out infinite; }
+
+    .vital-value { font-size: 36px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; }
+
+    /* Tooltip */
+    .tooltip { position: relative; }
+    .tooltip::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%) translateY(-8px);
+      background: var(--bg-elevated);
+      color: var(--fg-primary);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      border: 1px solid var(--border-color);
+    }
+    .tooltip:hover::after { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+
+    /* Hero Background */
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background: 
+        radial-gradient(ellipse 120% 100% at 50% -40%, rgba(0, 255, 204, 0.15) 0%, transparent 60%),
+        radial-gradient(ellipse 80% 70% at 90% 30%, rgba(0, 180, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 50% at 10% 90%, rgba(157, 92, 255, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    /* Grid Pattern */
+    .grid-pattern {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(30, 48, 72, 0.4) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(30, 48, 72, 0.4) 1px, transparent 1px);
+      background-size: 50px 50px;
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 20%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .hide-mobile { display: none !important; }
+      .card { padding: 16px; }
+      .vital-value { font-size: 28px; }
+    }
+
+    @media (min-width: 641px) and (max-width: 1024px) {
+      .hide-tablet { display: none !important; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Focus States */
+    .focus-ring:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+
+    /* Chart Bars */
+    .chart-bar { transition: height 0.5s ease-out, background 0.3s; }
+
+    /* Keyboard Shortcut Badge */
+    .kbd {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 6px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--fg-muted);
+    }
+
+    /* Shimmer Effect */
+    .shimmer {
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      background-size: 200% 100%;
+      animation: shimmer 2s infinite;
+    }
+  </style>
+</head>
+<body>
+  <!-- Achievement Toast Container -->
+  <div id="achievement-container" class="fixed top-20 right-4 z-50 space-y-3"></div>
+
+  <!-- Confetti Container -->
+  <div id="confetti-container"></div>
+
+  <!-- Navigation -->
+  <nav class="fixed top-0 left-0 right-0 z-40 backdrop-blur-2xl bg-[rgba(3,7,18,0.85)] border-b border-[var(--border-color)]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center relative">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#030712" stroke-width="2.5">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5"/>
+              <path d="M2 12l10 5 10-5"/>
+            </svg>
+            <div class="absolute -top-1 -right-1 w-3 h-3 bg-[var(--accent-success)] rounded-full border-2 border-[var(--bg-primary)]"></div>
+          </div>
+          <div>
+            <span class="font-bold text-lg font-['Space_Grotesk']">AgentHealth</span>
+            <div class="hidden sm:flex items-center gap-1.5 text-xs text-[var(--fg-muted)]">
+              <span class="status-dot status-online" style="width: 6px; height: 6px;"></span>
+              <span>6 agents active</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="hidden lg:flex items-center gap-6">
+          <a href="#network" class="text-[var(--fg-secondary)] hover:text-[var(--fg-primary)] transition-colors text-sm">Network</a>
+          <a href="#assistant" class="text-[var(--fg-secondary)] hover:text-[var(--fg-primary)] transition-colors text-sm">AI Assistant</a>
+          <a href="#monitor" class="text-[var(--fg-secondary)] hover:text-[var(--fg-primary)] transition-colors text-sm">Live Monitor</a>
+          <a href="#analytics" class="text-[var(--fg-secondary)] hover:text-[var(--fg-primary)] transition-colors text-sm">Analytics</a>
+          <a href="#fhir" class="text-[var(--fg-secondary)] hover:text-[var(--fg-primary)] transition-colors text-sm">FHIR Builder</a>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button onclick="toggleKeyboardHelp()" class="tooltip btn-action p-2.5" data-tooltip="Keyboard Shortcuts" aria-label="Keyboard shortcuts">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="4" width="20" height="16" rx="2"/>
+              <path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M8 16h8"/>
+            </svg>
+          </button>
+          <button onclick="scrollTo('network')" class="btn-primary text-sm hidden sm:block">
+            <span>Launch Console</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Keyboard Shortcuts Modal -->
+  <div id="keyboard-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[rgba(0,0,0,0.8)] backdrop-blur-sm">
+    <div class="glass rounded-2xl p-6 max-w-md w-full mx-4 animate-scale-in">
+      <div class="flex items-center justify-between mb-6">
+        <h3 class="text-xl font-bold">Keyboard Shortcuts</h3>
+        <button onclick="toggleKeyboardHelp()" class="btn-action p-2" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="space-y-3">
+        <div class="flex justify-between items-center"><span class="text-[var(--fg-secondary)]">Toggle Network View</span><span class="kbd">N</span></div>
+        <div class="flex justify-between items-center"><span class="text-[var(--fg-secondary)]">Open AI Assistant</span><span class="kbd">A</span></div>
+        <div class="flex justify-between items-center"><span class="text-[var(--fg-secondary)]">Live Monitor</span><span class="kbd">M</span></div>
+        <div class="flex justify-between items-center"><span class="text-[var(--fg-secondary)]">FHIR Builder</span><span class="kbd">F</span></div>
+        <div class="flex justify-between items-center"><span class="text-[var(--fg-secondary)]">Simulate Data Flow</span><span class="kbd">Space</span></div>
+        <div class="flex justify-between items-center"><span class="text-[var(--fg-secondary)]">Show Shortcuts</span><span class="kbd">?</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <section class="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
+    <div class="hero-bg"></div>
+    <div class="grid-pattern"></div>
+    
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div class="text-center mb-16">
+        <div class="reveal active stagger-1 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(157,92,255,0.1)] border border-[rgba(157,92,255,0.3)] mb-8">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="var(--accent-tertiary)">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          <span class="text-sm font-medium text-[var(--accent-tertiary)]">Healthcare AI Hackathon 2026</span>
+        </div>
+        
+        <h1 class="reveal active stagger-2 text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight mb-8">
+          Agents Assemble<br>
+          <span class="gradient-text">Healthcare AI Endgame</span>
+        </h1>
+        
+        <p class="reveal active stagger-3 text-lg sm:text-xl text-[var(--fg-secondary)] max-w-3xl mx-auto mb-10">
+          Interoperable healthcare agents powered by 
+          <span class="text-[var(--accent-primary)] font-semibold">MCP</span>, 
+          <span class="text-[var(--accent-secondary)] font-semibold">A2A</span>, and 
+          <span class="text-[var(--accent-tertiary)] font-semibold">FHIR</span> protocols
+        </p>
+        
+        <div class="reveal active stagger-4 flex flex-col sm:flex-row gap-4 justify-center mb-16">
+          <button onclick="scrollTo('network')" class="btn-primary text-base">
+            <span>Explore Network</span>
+          </button>
+          <button onclick="scrollTo('assistant')" class="btn-secondary text-base">
+            <span>Try AI Assistant</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Stats Grid -->
+      <div class="reveal active stagger-5 grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
+        <div class="card text-center group">
+          <div class="text-3xl sm:text-4xl font-bold gradient-text mb-1" id="stat-agents">6</div>
+          <div class="text-sm text-[var(--fg-muted)]">Active Agents</div>
+          <div class="progress-bar mt-3"><div class="progress-fill" style="width: 100%"></div></div>
+        </div>
+        <div class="card text-center">
+          <div class="text-3xl sm:text-4xl font-bold text-[var(--accent-secondary)] mb-1" id="stat-queries">2.4K</div>
+          <div class="text-sm text-[var(--fg-muted)]">Queries/sec</div>
+          <div class="progress-bar mt-3"><div class="progress-fill" style="width: 75%"></div></div>
+        </div>
+        <div class="card text-center">
+          <div class="text-3xl sm:text-4xl font-bold text-[var(--accent-tertiary)] mb-1" id="stat-latency">12ms</div>
+          <div class="text-sm text-[var(--fg-muted)]">Avg Latency</div>
+          <div class="progress-bar mt-3"><div class="progress-fill" style="width: 60%"></div></div>
+        </div>
+        <div class="card text-center">
+          <div class="text-3xl sm:text-4xl font-bold text-[var(--accent-success)] mb-1" id="stat-uptime">99.99%</div>
+          <div class="text-sm text-[var(--fg-muted)]">Uptime</div>
+          <div class="progress-bar mt-3"><div class="progress-fill" style="width: 99%"></div></div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="reveal mt-12 flex flex-wrap justify-center gap-3">
+        <button onclick="triggerDataFlow()" class="btn-action tooltip" data-tooltip="Press Space">
+          <span>Simulate Data Flow</span>
+          <span class="kbd ml-2 hide-mobile">Space</span>
+        </button>
+        <button onclick="showAchievement('First Steps', 'You explored the platform!')" class="btn-action">
+          <span>Test Achievement</span>
+        </button>
+        <button onclick="triggerConfetti()" class="btn-action">
+          <span>Celebrate</span>
+        </button>
+      </div>
+    </div>
+
+    <button onclick="scrollTo('network')" class="absolute bottom-8 left-1/2 -translate-x-1/2 text-[var(--fg-muted)] hover:text-[var(--fg-primary)] transition-colors animate-float" aria-label="Scroll down">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 5v14M5 12l7 7 7-7"/>
+      </svg>
+    </button>
+  </section>
+
+  <!-- Agent Network Section -->
+  <section id="network" class="relative py-24 bg-[var(--bg-secondary)]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <div class="reveal inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[rgba(0,255,204,0.1)] border border-[rgba(0,255,204,0.3)] mb-4">
+          <span class="text-xs font-medium text-[var(--accent-primary)]">INTERACTIVE NETWORK</span>
+        </div>
+        <h2 class="reveal stagger-1 text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Agent Network Topology</h2>
+        <p class="reveal stagger-2 text-base sm:text-lg text-[var(--fg-secondary)] max-w-2xl mx-auto">
+          Click agents to explore. Watch real-time data flow through the healthcare ecosystem.
+        </p>
+      </div>
+
+      <div class="reveal stagger-3 grid lg:grid-cols-5 gap-6">
+        <!-- Network Visualization -->
+        <div class="lg:col-span-3 glass rounded-2xl p-6">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="font-bold text-lg">Live Network</h3>
+            <div class="flex gap-2">
+              <button onclick="triggerDataFlow()" class="btn-action text-sm">Flow Data</button>
+              <button onclick="resetNetwork()" class="btn-action text-sm">Reset</button>
+            </div>
+          </div>
+          
+          <div class="relative bg-[rgba(0,0,0,0.4)] rounded-xl overflow-hidden" style="min-height: 380px;">
+            <svg id="network-svg" viewBox="0 0 700 350" class="w-full h-auto" role="img" aria-label="Agent network topology">
+              <defs>
+                <linearGradient id="nodeGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#00ffcc"/>
+                  <stop offset="100%" stop-color="#00b4ff"/>
+                </linearGradient>
+                <linearGradient id="nodeGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#00b4ff"/>
+                  <stop offset="100%" stop-color="#9d5cff"/>
+                </linearGradient>
+                <linearGradient id="nodeGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#9d5cff"/>
+                  <stop offset="100%" stop-color="#ff4d6d"/>
+                </linearGradient>
+                <filter id="glowFilter">
+                  <feGaussianBlur stdDeviation="4" result="glow"/>
+                  <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+              </defs>
+              
+              <!-- Animated Lines -->
+              <g id="network-lines">
+                <path class="ecg-wave" d="M120 90 Q250 40 350 130" stroke="rgba(0,255,204,0.3)" stroke-width="2" fill="none" stroke-dasharray="8 4" style="animation-duration: 3s"/>
+                <path class="ecg-wave" d="M580 90 Q450 40 350 130" stroke="rgba(0,180,255,0.3)" stroke-width="2" fill="none" stroke-dasharray="8 4" style="animation-duration: 3.5s"/>
+                <path class="ecg-wave" d="M350 130 L350 220" stroke="rgba(157,92,255,0.3)" stroke-width="2" fill="none" stroke-dasharray="8 4" style="animation-duration: 2.5s"/>
+                <path class="ecg-wave" d="M350 220 Q200 280 100 290" stroke="rgba(0,255,204,0.2)" stroke-width="2" fill="none" stroke-dasharray="8 4" style="animation-duration: 4s"/>
+                <path class="ecg-wave" d="M350 220 Q500 280 600 290" stroke="rgba(0,180,255,0.2)" stroke-width="2" fill="none" stroke-dasharray="8 4" style="animation-duration: 4.5s"/>
+              </g>
+              
+              <!-- Data Packets Container -->
+              <g id="packets-container"></g>
+              
+              <!-- Agent Nodes -->
+              <g class="agent-node" onclick="selectAgent('mcp')" style="cursor: pointer;" tabindex="0">
+                <circle cx="120" cy="90" r="38" fill="url(#nodeGrad1)" filter="url(#glowFilter)"/>
+                <text x="120" y="87" text-anchor="middle" fill="#030712" font-size="13" font-weight="bold">MCP</text>
+                <text x="120" y="102" text-anchor="middle" fill="#030712" font-size="10">Context</text>
+                <circle cx="145" cy="62" r="8" fill="var(--accent-success)" stroke="var(--bg-primary)" stroke-width="2"/>
+              </g>
+              
+              <g class="agent-node" onclick="selectAgent('a2a')" style="cursor: pointer;" tabindex="0">
+                <circle cx="580" cy="90" r="38" fill="url(#nodeGrad2)" filter="url(#glowFilter)"/>
+                <text x="580" y="87" text-anchor="middle" fill="#030712" font-size="13" font-weight="bold">A2A</text>
+                <text x="580" y="102" text-anchor="middle" fill="#030712" font-size="10">Router</text>
+                <circle cx="605" cy="62" r="8" fill="var(--accent-warning)" stroke="var(--bg-primary)" stroke-width="2"/>
+              </g>
+              
+              <g class="agent-node" onclick="selectAgent('orchestrator')" style="cursor: pointer;" tabindex="0">
+                <circle cx="350" cy="130" r="48" fill="var(--bg-card)" stroke="url(#nodeGrad1)" stroke-width="3" filter="url(#glowFilter)"/>
+                <text x="350" y="122" text-anchor="middle" fill="var(--fg-primary)" font-size="12" font-weight="bold">Healthcare</text>
+                <text x="350" y="138" text-anchor="middle" fill="var(--fg-primary)" font-size="12" font-weight="bold">Agent</text>
+                <circle cx="388" cy="92" r="10" fill="var(--accent-primary)" stroke="var(--bg-primary)" stroke-width="2">
+                  <animate attributeName="r" values="8;12;8" dur="2s" repeatCount="indefinite"/>
+                </circle>
+              </g>
+              
+              <g class="agent-node" onclick="selectAgent('fhir')" style="cursor: pointer;" tabindex="0">
+                <circle cx="350" cy="220" r="38" fill="url(#nodeGrad3)" filter="url(#glowFilter)"/>
+                <text x="350" y="217" text-anchor="middle" fill="#030712" font-size="13" font-weight="bold">FHIR</text>
+                <text x="350" y="232" text-anchor="middle" fill="#030712" font-size="10">Parser</text>
+                <circle cx="375" cy="192" r="8" fill="var(--accent-success)" stroke="var(--bg-primary)" stroke-width="2"/>
+              </g>
+              
+              <g class="agent-node" onclick="selectAgent('ehr')" style="cursor: pointer;" tabindex="0">
+                <circle cx="100" cy="290" r="30" fill="var(--bg-elevated)" stroke="var(--fg-muted)" stroke-width="2"/>
+                <text x="100" y="294" text-anchor="middle" fill="var(--fg-secondary)" font-size="11">EHR</text>
+              </g>
+              
+              <g class="agent-node" onclick="selectAgent('api')" style="cursor: pointer;" tabindex="0">
+                <circle cx="600" cy="290" r="30" fill="var(--bg-elevated)" stroke="var(--fg-muted)" stroke-width="2"/>
+                <text x="600" y="294" text-anchor="middle" fill="var(--fg-secondary)" font-size="11">API</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Agent Details -->
+        <div class="lg:col-span-2 space-y-6">
+          <div class="glass rounded-2xl p-6" id="agent-info-card">
+            <h3 class="font-bold text-lg mb-4">Agent Information</h3>
+            <div id="agent-info" class="text-center py-10 text-[var(--fg-muted)]">
+              <svg class="w-14 h-14 mx-auto mb-4 opacity-40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 16v-4M12 8h.01"/>
+              </svg>
+              <p>Click on an agent node to explore</p>
+            </div>
+          </div>
+          
+          <div class="glass rounded-2xl p-6">
+            <h3 class="font-bold text-lg mb-4">Activity Feed</h3>
+            <div id="activity-feed" class="h-52 overflow-y-auto custom-scroll space-y-2 text-sm">
+              <div class="chat-message flex items-start gap-3 p-3 rounded-xl bg-[rgba(0,255,204,0.05)]">
+                <span class="status-dot status-online mt-1" style="width: 8px; height: 8px;"></span>
+                <div><span class="text-[var(--accent-primary)]">[System]</span> Network initialized</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI Assistant Section -->
+  <section id="assistant" class="relative py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <div class="reveal inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[rgba(0,180,255,0.1)] border border-[rgba(0,180,255,0.3)] mb-4">
+          <span class="text-xs font-medium text-[var(--accent-secondary)]">AI POWERED</span>
+        </div>
+        <h2 class="reveal stagger-1 text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Health AI Assistant</h2>
+        <p class="reveal stagger-2 text-base sm:text-lg text-[var(--fg-secondary)] max-w-2xl mx-auto">
+          Ask questions about patient data, FHIR resources, or healthcare workflows
+        </p>
+      </div>
+
+      <div class="reveal stagger-3 max-w-4xl mx-auto">
+        <div class="glass rounded-2xl overflow-hidden">
+          <!-- Chat Header -->
+          <div class="flex items-center justify-between p-4 border-b border-[var(--border-color)]">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--accent-secondary)] to-[var(--accent-tertiary)] flex items-center justify-center">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#030712" stroke-width="2">
+                  <path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z"/>
+                  <path d="M12 16v-4M12 8h.01"/>
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-bold">Health Agent AI</h3>
+                <div class="flex items-center gap-1.5 text-xs text-[var(--accent-success)]">
+                  <span class="status-dot status-online" style="width: 6px; height: 6px;"></span>
+                  Online
+                </div>
+              </div>
+            </div>
+            <button onclick="clearChat()" class="btn-action text-sm">Clear Chat</button>
+          </div>
+          
+          <!-- Chat Messages -->
+          <div id="chat-messages" class="h-96 overflow-y-auto custom-scroll p-6 space-y-4">
+            <div class="chat-message flex gap-3">
+              <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--accent-secondary)] to-[var(--accent-tertiary)] flex items-center justify-center flex-shrink-0">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#030712" stroke-width="2">
+                  <path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z"/>
+                </svg>
+              </div>
+              <div class="bg-[rgba(0,180,255,0.1)] border border-[rgba(0,180,255,0.2)] rounded-2xl rounded-tl-sm p-4 max-w-lg">
+                <p class="text-sm">Hello! I'm your Health AI Assistant. I can help you with:</p>
+                <ul class="text-sm text-[var(--fg-secondary)] mt-2 space-y-1">
+                  <li>• Patient data queries</li>
+                  <li>• FHIR resource questions</li>
+                  <li>• Clinical workflow guidance</li>
+                  <li>• Diagnosis suggestions</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Quick Prompts -->
+          <div class="flex flex-wrap gap-2 px-6 py-3 border-t border-[var(--border-color)]">
+            <button onclick="askAI('Show patient vitals')" class="btn-action text-xs">Patient Vitals</button>
+            <button onclick="askAI('Explain FHIR Patient resource')" class="btn-action text-xs">FHIR Patient</button>
+            <button onclick="askAI('What are the active alerts?')" class="btn-action text-xs">Active Alerts</button>
+            <button onclick="askAI('Generate care summary')" class="btn-action text-xs">Care Summary</button>
+          </div>
+          
+          <!-- Chat Input -->
+          <div class="p-4 border-t border-[var(--border-color)]">
+            <div class="flex gap-3">
+              <input type="text" id="chat-input" placeholder="Ask about healthcare data..."
+                class="flex-1 bg-[rgba(0,0,0,0.3)] border border-[var(--border-color)] rounded-xl px-4 py-3 focus:outline-none focus:border-[var(--accent-secondary)] transition-colors"
+                onkeypress="if(event.key==='Enter')sendMessage()">
+              <button onclick="sendMessage()" class="btn-primary">
+                <span>Send</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Monitor Section -->
+  <section id="monitor" class="relative py-24 bg-[var(--bg-secondary)]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <div class="reveal inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[rgba(255,77,109,0.1)] border border-[rgba(255,77,109,0.3)] mb-4">
+          <span class="text-xs font-medium text-[var(--accent-danger)]">LIVE MONITORING</span>
+        </div>
+        <h2 class="reveal stagger-1 text-3xl sm:text-4xl md:text-5xl font-bold mb-4">Clinical Dashboard</h2>
+        <p class="reveal stagger-2 text-base sm:text-lg text-[var(--fg-secondary)] max-w-2xl mx-auto">
+          Real-time patient monitoring with advanced ECG visualization
+        </p>
+      </div>
+
+      <div class="reveal stagger-3 grid lg:grid-cols-4 gap-6">
+        <!-- Patient List -->
+        <div class="glass rounded-2xl p-6">
+          <h3 class="font-bold text-lg mb-4">Patients</h3>
+          <div id="patient-list" class="space-y-3"></div>
+        </div>
+
+        <!-- Main Monitor -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- ECG -->
+          <div class="glass rounded-2xl p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="font-bold text-lg">ECG Monitor</h3>
+                <div class="flex items-center gap-2 mt-1">
+                  <span id="ecg-mode" class="text-xs px-2 py-0.5 rounded bg-[rgba(0,255,204,0.1)] text-[var(--accent-primary)]">NORMAL</span>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-4xl font-bold text-[var(--accent-primary)] animate-heartbeat" id="hr-display">72</div>
+                <div class="text-xs text-[var(--fg-muted)]">BPM</div>
+              </div>
+            </div>
+            
+            <div class="ecg-container h-40 bg-[rgba(0,0,0,0.4)] rounded-xl overflow-hidden">
+              <svg id="ecg-svg" width="200%" height="100%" preserveAspectRatio="none">
+                <path id="ecg-path" class="ecg-line ecg-normal ecg-wave" d=""/>
+              </svg>
+            </div>
+            
+            <div class="flex gap-2 mt-4">
+              <button onclick="setECGMode('normal')" class="btn-action text-xs active" id="btn-normal">Normal</button>
+              <button onclick="setECGMode('tachy')" class="btn-action text-xs" id="btn-tachy">Tachycardia</button>
+              <button onclick="setECGMode('brady')" class="btn-action text-xs" id="btn-brady">Bradycardia</button>
+            </div>
+          </div>
+
+          <!-- Other Vitals -->
+          <div class="grid grid-cols-2 gap-4">
+            <div class="vital-card" id="bp-card">
+              <div class="text-xs text-[var(--fg-muted)] mb-1">Blood Pressure</div>
+              <div class="vital-value text-[var(--accent-secondary)]" id="bp-display">120/80</div>
+              <div class="text-xs text-[var(--fg-muted)]">mmHg</div>
+            </div>
+            <div class="vital-card" id="o2-card">
+              <div class="text-xs text-[var(--fg-muted)] mb-1">SpO2</div>
+              <div class="vital-value text-[var(--accent-tertiary)]" id="o2-display">98</div>
+              <div class="text-xs text-[var(--fg-muted)]">%</div>
+            </div>
+            <div class="vital-card" id="temp-card">
+              <div class="text-xs text-[var(--fg-muted)] mb-1">Temperature</div>
+              <div class="vital-value text-[var(--accent-warning)]" id="temp-display">98.6</div>
+              <div class="text-xs text-[var(--fg-muted)]">°F</div>
+            </div>
+            <div class="vital-card" id="rr-card">
+              <div class="text-xs text-[var(--fg-muted)] mb-1">Resp Rate</div>
+              <div class="vital-value text-[var(--accent-success)]" id="rr-display">16</div>
+              <div class="text-xs text-[var(--fg-muted)]">/min</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alerts & Actions -->
+        <div class="space-y-6">
+          <div class="glass rounded-2xl p-6">
+            <h3 class="font-bold text-lg mb-4">Alerts</h3>
+            <div id="alerts-list" class="space-y-3 max-h-48 overflow-y-auto custom-scroll">
+              <div class="p-3 rounded-xl bg-[rgba(0,232,157,0.1)] border border-[rgba(0,232,157,0.3)]">
+                <div class="flex items-center gap-2">
+                  <span class="status-dot status-online" style="width: 8px; height: 8px;"></span>
+                  <span class="text-sm text-[var(--accent-success)]">All vitals normal</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="glass rounded-2xl p-6">
+            <h3 class="font-bold text-lg mb-4">Actions</h3>
+            <div class="space-y-3">
+              <button onclick="generateFHIRObservation()" class="btn-action w-full text-sm">Generate FHIR</button>
+              <button onclick="simulateAlert()" class="btn-action w-full text-sm">Trigger Alert</button>
+              <button onclick="resetMonitor()" class="btn-action w-full text-sm">Reset Monitor</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Analytics Section -->
+  <section id="analytics" class="relative py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <div class="reveal inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[rgba(255,179,64,0.1)] border border-[rgba(255,179,64,0.3)] mb-4">
+          <span class="text-xs font-medium text-[var(--accent-warning)]">REAL-TIME ANALYTICS</span>
+        </div>
+        <h2 class="reveal stagger-1 text-3xl sm:text-4xl md:text-5xl font-bold mb-4">System Analytics</h2>
+        <p class="reveal stagger-2 text-base sm:text-lg text-[var(--fg-secondary)] max-w-2xl mx-auto">
+          Monitor system performance, agent load, and data throughput in real-time
+        </p>
+      </div>
+
+      <div class="reveal stagger-3 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Throughput Chart -->
+        <div class="glass rounded-2xl p-6">
+          <h3 class="font-bold text-lg mb-4">Request Throughput</h3>
+          <div class="h-48 flex items-end justify-between gap-1" id="throughput-chart">
+            <!-- Bars generated by JS -->
+          </div>
+          <div class="flex justify-between mt-4 text-xs text-[var(--fg-muted)]">
+            <span>1m ago</span>
+            <span>Now</span>
+          </div>
+        </div>
+
+        <!-- Agent Load -->
+        <div class="glass rounded-2xl p-6">
+          <h3 class="font-bold text-lg mb-4">Agent Load</h3>
+          <div class="space-y-4" id="agent-load-chart">
+            <!-- Generated by JS -->
+          </div>
+        </div>
+
+        <!-- Success Rate -->
+        <div class="glass rounded-2xl p-6">
+          <h3 class="font-bold text-lg mb-4">Success Rate</h3>
+          <div class="flex items-center justify-center h-48">
+            <div class="relative w-40 h-40">
+              <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="var(--bg-elevated)" stroke-width="8"/>
+                <circle id="success-circle" cx="50" cy="50" r="45" fill="none" stroke="url(#nodeGrad1)" stroke-width="8" stroke-linecap="round" stroke-dasharray="283" stroke-dashoffset="3"/>
+              </svg>
+              <div class="absolute inset-0 flex items-center justify-center">
+                <div class="text-center">
+                  <div class="text-3xl font-bold text-[var(--accent-primary)]" id="success-rate">99.2%</div>
+                  <div class="text-xs text-[var(--fg-muted)]">Success</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Protocol Distribution -->
+        <div class="glass rounded-2xl p-6">
+          <h3 class="font-bold text-lg mb-4">Protocol Usage</h3>
+          <div class="space-y-3">
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span>MCP</span>
+                <span class="text-[var(--accent-primary)]">42%</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" style="width: 42%; background: var(--accent-primary)"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span>A2A</span>
+                <span class="text-[var(--accent-secondary)]">35%</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" style="width: 35%; background: var(--accent-secondary)"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span>FHIR</span>
+                <span class="text-[var(--accent-tertiary)]">23%</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" style="width: 23%; background: var(--accent-tertiary)"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Response Time -->
+        <div class="glass rounded-2xl p-6">
+          <h3 class="font-bold text-lg mb-4">Response Time</h3>
+          <div class="h-48 flex items-end justify-between gap-1" id="response-chart">
+            <!-- Generated by JS -->
+          </div>
+          <div class="flex justify-between mt-4 text-xs text-[var(--fg-muted)]">
+            <span>1h ago</span>
+            <span>Now</span>
+          </div>
+        </div>
+
+        <!-- Active Connections -->
+        <div class="glass rounded-2xl p-6">
+          <h3 class="font-bold text-lg mb-4">Active Connections</h3>
+          <div class="text-center py-6">
+            <div class="text-5xl font-bold gradient-text" id="active-connections">147</div>
+            <div class="text-sm text-[var(--fg-muted)] mt-2">concurrent sessions</div>
+          </div>
+          <div class="grid grid-cols-3 gap-2 mt-4">
+            <div class="text-center p-2 rounded-lg bg-[rgba(0,0,0,0.2)]">
+              <div class="text-lg font-bold text-[var(--accent-primary)]">52</div>
+              <div class="text-xs text-[var(--fg-muted)]">Clinicians</div>
+            </div>
+            <div class="text-center p-2 rounded-lg bg-[rgba(0,0,0,0.2)]">
+              <div class="text-lg font-bold text-[var(--accent-secondary)]">38</div>
+              <div class="text-xs text-[var(--fg-muted)]">Systems</div>
+            </div>
+            <div class="text-center p-2 rounded-lg bg-[rgba(0,0,0,0.2)]">
+              <div class="text-lg font-bold text-[var(--accent-tertiary)]">57</div>
+              <div class="text-xs text-[var(--fg-muted)]">Agents</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FHIR Builder Section -->
+  <section id="fhir" class="relative py-24 bg-[var(--bg-secondary)]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <div class="reveal inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[rgba(157,92,255,0.1)] border border-[rgba(157,92,255,0.3)] mb-4">
+          <span class="text-xs font-medium text-[var(--accent-tertiary)]">FHIR R4 COMPLIANT</span>
+        </div>
+        <h2 class="reveal stagger-1 text-3xl sm:text-4xl md:text-5xl font-bold mb-4">FHIR Resource Builder</h2>
+        <p class="reveal stagger-2 text-base sm:text-lg text-[var(--fg-secondary)] max-w-2xl mx-auto">
+          Create and validate FHIR resources with real-time JSON preview
+        </p>
+      </div>
+
+      <div class="reveal stagger-3">
+        <div class="flex flex-wrap justify-center gap-3 mb-8">
+          <button onclick="setResourceType('Patient')" class="btn-action active" data-type="Patient">Patient</button>
+          <button onclick="setResourceType('Observation')" class="btn-action" data-type="Observation">Observation</button>
+          <button onclick="setResourceType('MedicationRequest')" class="btn-action" data-type="MedicationRequest">Medication</button>
+          <button onclick="setResourceType('CarePlan')" class="btn-action" data-type="CarePlan">Care Plan</button>
+          <button onclick="setResourceType('DiagnosticReport')" class="btn-action" data-type="DiagnosticReport">Diagnostic</button>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="glass rounded-2xl p-6">
+            <h3 class="font-bold text-lg mb-4">Resource Form</h3>
+            <form id="fhir-form" class="space-y-4"></form>
+            <div class="flex gap-3 mt-6">
+              <button type="button" onclick="validateFHIR()" class="btn-primary flex-1">
+                <span>Validate Resource</span>
+              </button>
+              <button type="button" onclick="downloadFHIR()" class="btn-secondary">
+                <span>Download</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="glass rounded-2xl p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-bold text-lg">JSON Preview</h3>
+              <button onclick="copyFHIR()" class="btn-action text-xs">Copy JSON</button>
+            </div>
+            <div class="code-block h-96 overflow-y-auto custom-scroll">
+              <pre id="fhir-json" class="text-xs"></pre>
+            </div>
+            <div id="validation-msg" class="mt-4 p-3 rounded-xl text-sm hidden"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="relative py-16 border-t border-[var(--border-color)]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--accent-primary)] to-[var(--accent-secondary)] flex items-center justify-center">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#030712" stroke-width="2.5">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5"/>
+              <path d="M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <div>
+            <span class="font-bold text-xl font-['Space_Grotesk']">AgentHealth</span>
+            <div class="text-sm text-[var(--fg-muted)]">Healthcare AI Hackathon 2026</div>
+          </div>
+        </div>
+        
+        <div class="text-center text-sm text-[var(--fg-muted)]">
+          <p>MCP + A2A + FHIR Interoperability Platform</p>
+          <p class="mt-1">Built with care for healthcare innovation</p>
+        </div>
+        
+        <div class="flex items-center gap-4">
+          <a href="#" class="w-11 h-11 rounded-xl bg-[var(--bg-card)] border border-[var(--border-color)] flex items-center justify-center hover:border-[var(--accent-primary)] transition-all focus-ring" aria-label="GitHub">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // =============================================
+    // DATA & STATE
+    // =============================================
+    
+    const agentsData = {
+      mcp: { id: 'mcp', name: 'MCP Context Agent', role: 'Context Management', status: 'online', load: 34, requests: 12847, uptime: '14d 6h', color: '#00ffcc', protocol: 'MCP', description: 'Manages AI model context and tool definitions', capabilities: ['Context State', 'Tool Registry', 'Prompt SDK'] },
+      a2a: { id: 'a2a', name: 'A2A Router Agent', role: 'Message Routing', status: 'processing', load: 67, requests: 28456, uptime: '7d 12h', color: '#00b4ff', protocol: 'A2A', description: 'Routes messages between agents securely', capabilities: ['Agent Discovery', 'Secure Routing', 'Load Balancing'] },
+      orchestrator: { id: 'orchestrator', name: 'Healthcare Orchestrator', role: 'Workflow Coordination', status: 'online', load: 45, requests: 41203, uptime: '30d 2h', color: '#f0f4ff', protocol: 'Multi', description: 'Central coordinator for healthcare workflows', capabilities: ['Workflow Engine', 'Decision Support', 'Audit Logging'] },
+      fhir: { id: 'fhir', name: 'FHIR Parser Agent', role: 'Data Transformation', status: 'online', load: 23, requests: 35678, uptime: '21d 8h', color: '#9d5cff', protocol: 'FHIR', description: 'Parses and transforms FHIR resources', capabilities: ['Resource Parser', 'Validation', 'Transformation'] },
+      ehr: { id: 'ehr', name: 'EHR Integration', role: 'External Systems', status: 'idle', load: 12, requests: 8234, uptime: '60d 0h', color: '#4a5f8a', protocol: 'External', description: 'Connects to Epic, Cerner EHR systems', capabilities: ['Epic API', 'Cerner API', 'Data Sync'] },
+      api: { id: 'api', name: 'External API Gateway', role: 'API Management', status: 'online', load: 56, requests: 19234, uptime: '45d 14h', color: '#4a5f8a', protocol: 'External', description: 'Gateway for labs, pharmacy, insurance APIs', capabilities: ['Lab Results', 'Pharmacy', 'Insurance'] }
+    };
+
+    const patientsData = [
+      { id: 'pt-001', name: 'John Smith', age: 45, gender: 'male', status: 'stable' },
+      { id: 'pt-002', name: 'Sarah Johnson', age: 62, gender: 'female', status: 'monitoring' },
+      { id: 'pt-003', name: 'Michael Chen', age: 38, gender: 'male', status: 'critical' }
+    ];
+
+    const resourceSchemas = {
+      Patient: [
+        { key: 'id', label: 'Patient ID', type: 'text', default: () => 'patient-' + Math.random().toString(36).substr(2, 6) },
+        { key: 'familyName', label: 'Family Name', type: 'text', default: () => '' },
+        { key: 'givenName', label: 'Given Name', type: 'text', default: () => '' },
+        { key: 'gender', label: 'Gender', type: 'select', options: ['male', 'female', 'other', 'unknown'], default: () => 'male' },
+        { key: 'birthDate', label: 'Birth Date', type: 'date', default: () => '' }
+      ],
+      Observation: [
+        { key: 'id', label: 'Observation ID', type: 'text', default: () => 'obs-' + Math.random().toString(36).substr(2, 6) },
+        { key: 'status', label: 'Status', type: 'select', options: ['registered', 'preliminary', 'final', 'amended'], default: () => 'final' },
+        { key: 'category', label: 'Category', type: 'select', options: ['vital-signs', 'laboratory', 'imaging', 'exam'], default: () => 'vital-signs' },
+        { key: 'code', label: 'LOINC Code', type: 'text', default: () => '8867-4' },
+        { key: 'display', label: 'Display', type: 'text', default: () => 'Heart rate' },
+        { key: 'value', label: 'Value', type: 'number', default: () => '72' },
+        { key: 'unit', label: 'Unit', type: 'text', default: () => 'beats/min' }
+      ],
+      MedicationRequest: [
+        { key: 'id', label: 'Medication ID', type: 'text', default: () => 'med-' + Math.random().toString(36).substr(2, 6) },
+        { key: 'status', label: 'Status', type: 'select', options: ['active', 'on-hold', 'cancelled', 'completed'], default: () => 'active' },
+        { key: 'medication', label: 'Medication', type: 'text', default: () => 'Aspirin 81mg' },
+        { key: 'dosage', label: 'Dosage', type: 'text', default: () => '1 tablet daily' }
+      ],
+      CarePlan: [
+        { key: 'id', label: 'Care Plan ID', type: 'text', default: () => 'care-' + Math.random().toString(36).substr(2, 6) },
+        { key: 'status', label: 'Status', type: 'select', options: ['draft', 'active', 'suspended', 'completed'], default: () => 'active' },
+        { key: 'title', label: 'Title', type: 'text', default: () => 'General Care Plan' },
+        { key: 'description', label: 'Description', type: 'textarea', default: () => '' }
+      ],
+      DiagnosticReport: [
+        { key: 'id', label: 'Report ID', type: 'text', default: () => 'diag-' + Math.random().toString(36).substr(2, 6) },
+        { key: 'status', label: 'Status', type: 'select', options: ['registered', 'partial', 'preliminary', 'final'], default: () => 'final' },
+        { key: 'category', label: 'Category', type: 'select', options: ['LAB', 'RAD', 'PATH', 'CARD'], default: () => 'LAB' },
+        { key: 'conclusion', label: 'Conclusion', type: 'textarea', default: () => '' }
+      ]
+    };
+
+    const aiResponses = {
+      'Show patient vitals': 'Current patient vitals:\n• Heart Rate: 72 BPM (Normal)\n• Blood Pressure: 120/80 mmHg (Normal)\n• SpO2: 98% (Normal)\n• Temperature: 98.6°F (Normal)\n• Respiratory Rate: 16/min (Normal)\n\nAll vitals are within normal ranges.',
+      'Explain FHIR Patient resource': 'FHIR Patient Resource (R4):\n\nThe Patient resource covers demographic and administrative information about a patient.\n\nKey elements:\n• identifier: Patient identifiers (MRN, SSN)\n• name: Patient name(s)\n• gender: Administrative gender\n• birthDate: Date of birth\n• telecom: Contact details\n• address: Physical addresses\n\nExample: Patient/12345 with status "active"',
+      'What are the active alerts?': 'Active System Alerts:\n\n✓ No critical alerts\n⚠ 2 monitoring alerts:\n  • Patient pt-002: Elevated BP trending\n  • Patient pt-003: Requires reassessment\n\nAll agents operational. Last sync: 2 seconds ago.',
+      'Generate care summary': 'Care Summary Generated:\n\nPatient: John Smith (pt-001)\n\nActive Conditions:\n• Hypertension (controlled)\n• Type 2 Diabetes (managed)\n\nCurrent Medications:\n• Lisinopril 10mg daily\n• Metformin 500mg BID\n\nNext Appointments:\n• Primary Care: 2026-02-15\n• Ophthalmology: 2026-03-01\n\nCare Team: Dr. Williams (PCP), Dr. Chen (Endo)'
+    };
+
+    // State
+    let currentAgent = null;
+    let currentPatient = patientsData[0];
+    let currentResourceType = 'Patient';
+    let currentFhirResource = null;
+    let ecgMode = 'normal';
+    let ecgInterval = null;
+    let statsInterval = null;
+
+    // =============================================
+    // UTILITIES
+    // =============================================
+    
+    function scrollTo(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function syntaxHighlight(json) {
+      return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, (match) => {
+        let cls = 'code-number';
+        if (/^"/.test(match)) cls = /:$/.test(match) ? 'code-keyword' : 'code-string';
+        else if (/true|false/.test(match)) cls = 'code-boolean';
+        return `<span class="${cls}">${match}</span>`;
+      });
+    }
+
+    function createRipple(e, element) {
+      const rect = element.getBoundingClientRect();
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple';
+      ripple.style.left = (e.clientX - rect.left) + 'px';
+      ripple.style.top = (e.clientY - rect.top) + 'px';
+      element.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 600);
+    }
+
+    // =============================================
+    // ACHIEVEMENTS & CONFETTI
+    // =============================================
+    
+    function showAchievement(title, description) {
+      const container = document.getElementById('achievement-container');
+      if (!container) return;
+      
+      const badge = document.createElement('div');
+      badge.className = 'achievement-badge';
+      badge.innerHTML = `
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--accent-tertiary)] to-[var(--accent-secondary)] flex items-center justify-center">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#030712" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        </div>
+        <div>
+          <div class="font-bold text-sm">${title}</div>
+          <div class="text-xs text-[var(--fg-muted)]">${description}</div>
+        </div>
+      `;
+      
+      container.appendChild(badge);
+      setTimeout(() => badge.remove(), 5000);
+    }
+
+    function triggerConfetti() {
+      const container = document.getElementById('confetti-container');
+      if (!container) return;
+      
+      const colors = ['#00ffcc', '#00b4ff', '#9d5cff', '#ffb340', '#ff4d6d'];
+      
+      for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.animationDelay = Math.random() * 0.5 + 's';
+        confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        container.appendChild(confetti);
+        setTimeout(() => confetti.remove(), 3000);
+      }
+    }
+
+    // =============================================
+    // KEYBOARD SHORTCUTS
+    // =============================================
+    
+    function toggleKeyboardHelp() {
+      const modal = document.getElementById('keyboard-modal');
+      if (modal) modal.classList.toggle('hidden');
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      
+      switch(e.key.toLowerCase()) {
+        case 'n': scrollTo('network'); break;
+        case 'a': scrollTo('assistant'); break;
+        case 'm': scrollTo('monitor'); break;
+        case 'f': scrollTo('fhir'); break;
+        case ' ': e.preventDefault(); triggerDataFlow(); break;
+        case '?': toggleKeyboardHelp(); break;
+        case 'escape': 
+          const modal = document.getElementById('keyboard-modal');
+          if (modal && !modal.classList.contains('hidden')) modal.classList.add('hidden');
+          break;
+      }
+    });
+
+    // =============================================
+    // AGENT NETWORK
+    // =============================================
+    
+    function selectAgent(agentId) {
+      const agent = agentsData[agentId];
+      if (!agent) return;
+      
+      currentAgent = agent;
+      const infoEl = document.getElementById('agent-info');
+      if (!infoEl) return;
+      
+      infoEl.innerHTML = `
+        <div class="animate-scale-in">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="w-14 h-14 rounded-xl flex items-center justify-center text-sm font-bold" style="background: ${agent.color}20; color: ${agent.color}; border: 2px solid ${agent.color}">
+              ${agent.protocol}
+            </div>
+            <div>
+              <h4 class="font-bold text-lg">${agent.name}</h4>
+              <span class="text-sm text-[var(--fg-muted)]">${agent.role}</span>
+            </div>
+          </div>
+          
+          <p class="text-sm text-[var(--fg-secondary)] mb-4">${agent.description}</p>
+          
+          <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="p-3 rounded-xl bg-[rgba(0,0,0,0.3)]">
+              <div class="text-xs text-[var(--fg-muted)]">Status</div>
+              <div class="flex items-center gap-2">
+                <span class="status-dot status-${agent.status}"></span>
+                <span class="text-sm capitalize">${agent.status}</span>
+              </div>
+            </div>
+            <div class="p-3 rounded-xl bg-[rgba(0,0,0,0.3)]">
+              <div class="text-xs text-[var(--fg-muted)]">Load</div>
+              <div class="text-sm font-medium">${agent.load}%</div>
+              <div class="progress-bar mt-1"><div class="progress-fill" style="width: ${agent.load}%"></div></div>
+            </div>
+          </div>
+          
+          <div class="flex flex-wrap gap-2">
+            ${agent.capabilities.map(cap => `<span class="px-3 py-1 text-xs rounded-full bg-[rgba(0,255,204,0.1)] border border-[rgba(0,255,204,0.2)]">${cap}</span>`).join('')}
+          </div>
+        </div>
+      `;
+      
+      addActivity(agentId, `Agent selected: ${agent.name}`);
+      showAchievement('Explorer', 'Selected an agent node');
+    }
+
+    function triggerDataFlow() {
+      addActivity('system', 'Initiating data flow...');
+      
+      const sequence = ['mcp', 'a2a', 'orchestrator', 'fhir', 'ehr'];
+      let delay = 0;
+      
+      sequence.forEach((agentId, i) => {
+        setTimeout(() => {
+          const agent = agentsData[agentId];
+          if (agent) addActivity(agentId, `Processing data packet #${i + 1}`);
+        }, delay);
+        delay += 400;
+      });
+      
+      setTimeout(() => {
+        addActivity('system', 'Data flow completed');
+        showAchievement('Data Flow', 'Completed a data flow simulation');
+      }, delay + 200);
+    }
+
+    function resetNetwork() {
+      currentAgent = null;
+      const infoEl = document.getElementById('agent-info');
+      if (infoEl) infoEl.innerHTML = `
+        <div class="text-center py-10 text-[var(--fg-muted)]">
+          <svg class="w-14 h-14 mx-auto mb-4 opacity-40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 16v-4M12 8h.01"/>
+          </svg>
+          <p>Click on an agent node to explore</p>
+        </div>
+      `;
+      addActivity('system', 'Network reset');
+    }
+
+    function addActivity(type, message) {
+      const feed = document.getElementById('activity-feed');
+      if (!feed) return;
+      
+      const colors = {
+        mcp: 'var(--accent-primary)',
+        a2a: 'var(--accent-secondary)',
+        orchestrator: 'var(--fg-primary)',
+        fhir: 'var(--accent-tertiary)',
+        ehr: 'var(--fg-muted)',
+        api: 'var(--fg-muted)',
+        system: 'var(--accent-success)'
+      };
+      
+      const item = document.createElement('div');
+      item.className = 'chat-message flex items-start gap-3 p-3 rounded-xl bg-[rgba(0,0,0,0.2)]';
+      item.innerHTML = `
+        <span class="status-dot status-${type === 'system' ? 'online' : 'processing'}" style="width: 8px; height: 8px; margin-top: 6px;"></span>
+        <div class="text-sm"><span style="color: ${colors[type] || 'var(--fg-primary)'}">[${type.toUpperCase()}]</span> ${message}</div>
+      `;
+      
+      feed.appendChild(item);
+      feed.scrollTop = feed.scrollHeight;
+    }
+
+    // =============================================
+    // AI ASSISTANT
+    // =============================================
+    
+    function sendMessage() {
+      const input = document.getElementById('chat-input');
+      if (!input) return;
+      
+      const message = input.value.trim();
+      if (!message) return;
+      
+      addChatMessage('user', message);
+      input.value = '';
+      
+      // Show typing indicator
+      const typingEl = document.createElement('div');
+      typingEl.className = 'chat-message flex gap-3';
+      typingEl.id = 'typing-indicator';
+      typingEl.innerHTML = `
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--accent-secondary)] to-[var(--accent-tertiary)] flex items-center justify-center flex-shrink-0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#030712" stroke-width="2">
+            <path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z"/>
+          </svg>
+        </div>
+        <div class="bg-[rgba(0,180,255,0.1)] border border-[rgba(0,180,255,0.2)] rounded-2xl rounded-tl-sm p-4">
+          <div class="typing-indicator flex gap-1"><span></span><span></span><span></span></div>
+        </div>
+      `;
+      document.getElementById('chat-messages').appendChild(typingEl);
+      
+      setTimeout(() => {
+        typingEl.remove();
+        const response = aiResponses[message] || `I understand you're asking about "${message}". Let me process this through the agent network...\n\nBased on the current system state, I can help you explore:\n• Patient data queries\n• FHIR resource creation\n• Clinical workflows\n\nWhat would you like to know more about?`;
+        addChatMessage('ai', response);
+        showAchievement('Curious Mind', 'Asked the AI assistant a question');
+      }, 1500);
+    }
+
+    function askAI(question) {
+      const input = document.getElementById('chat-input');
+      if (input) {
+        input.value = question;
+        sendMessage();
+      }
+    }
+
+    function addChatMessage(type, content) {
+      const container = document.getElementById('chat-messages');
+      if (!container) return;
+      
+      const msgEl = document.createElement('div');
+      msgEl.className = 'chat-message flex gap-3';
+      
+      if (type === 'user') {
+        msgEl.innerHTML = `
+          <div class="ml-auto bg-[rgba(0,255,204,0.1)] border border-[rgba(0,255,204,0.2)] rounded-2xl rounded-tr-sm p-4 max-w-md">
+            <p class="text-sm">${content}</p>
+          </div>
+        `;
+      } else {
+        msgEl.innerHTML = `
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--accent-secondary)] to-[var(--accent-tertiary)] flex items-center justify-center flex-shrink-0">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#030712" stroke-width="2">
+              <path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z"/>
+            </svg>
+          </div>
+          <div class="bg-[rgba(0,180,255,0.1)] border border-[rgba(0,180,255,0.2)] rounded-2xl rounded-tl-sm p-4 max-w-lg">
+            <p class="text-sm whitespace-pre-line">${content}</p>
+          </div>
+        `;
+      }
+      
+      container.appendChild(msgEl);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function clearChat() {
+      const container = document.getElementById('chat-messages');
+      if (container) container.innerHTML = '';
+      addChatMessage('ai', 'Chat cleared. How can I help you?');
+    }
+
+    // =============================================
+    // CLINICAL MONITOR
+    // =============================================
+    
+    function renderPatientList() {
+      const list = document.getElementById('patient-list');
+      if (!list) return;
+      
+      list.innerHTML = patientsData.map(p => `
+        <button onclick="selectPatient('${p.id}')" class="w-full text-left p-3 rounded-xl transition-all ${currentPatient.id === p.id ? 'bg-[rgba(0,255,204,0.1)] border border-[var(--accent-primary)]' : 'bg-[rgba(0,0,0,0.2)] hover:bg-[rgba(0,0,0,0.3)]'}">
+          <div class="flex items-center justify-between">
+            <span class="font-medium text-sm">${p.name}</span>
+            <span class="status-dot status-${p.status === 'stable' ? 'online' : p.status === 'monitoring' ? 'processing' : 'error'}" style="width: 8px; height: 8px;"></span>
+          </div>
+          <div class="text-xs text-[var(--fg-muted)]">${p.age}y ${p.gender}</div>
+        </button>
+      `).join('');
+    }
+
+    function selectPatient(id) {
+      currentPatient = patientsData.find(p => p.id === id) || patientsData[0];
+      renderPatientList();
+      addActivity('system', `Selected patient: ${currentPatient.name}`);
+    }
+
+    function startECG() {
+      const path = document.getElementById('ecg-path');
+      if (!path) return;
+      
+      let x = 0;
+      const speed = ecgMode === 'tachy' ? 4 : ecgMode === 'brady' ? 1.5 : 2;
+      
+      ecgInterval = setInterval(() => {
+        x += speed;
+        if (x > 800) x = 0;
+        
+        let d = '';
+        const baseY = 70;
+        
+        for (let i = 0; i <= x; i += 2) {
+          const cycle = i % 100;
+          let y = baseY;
+          
+          const hrMod = ecgMode === 'tachy' ? 1.3 : ecgMode === 'brady' ? 0.7 : 1;
+          
+          if (cycle < 10) y = baseY;
+          else if (cycle < 15) y = baseY - (cycle - 10) * 4 * hrMod;
+          else if (cycle < 20) y = baseY - 20 * hrMod + (cycle - 15) * 4 * hrMod;
+          else if (cycle < 30) y = baseY;
+          else if (cycle < 35) y = baseY + 35 * hrMod;
+          else if (cycle < 40) y = baseY - 50 * hrMod;
+          else if (cycle < 45) y = baseY + 20 * hrMod;
+          else if (cycle < 60) y = baseY;
+          else if (cycle < 70) y = baseY - 8;
+          else if (cycle < 80) y = baseY + 8;
+          else y = baseY;
+          
+          y = Math.max(10, Math.min(130, y));
+          d += (i === 0 ? 'M' : 'L') + ` ${i} ${y} `;
+        }
+        
+        path.setAttribute('d', d);
+      }, 30);
+    }
+
+    function setECGMode(mode) {
+      ecgMode = mode;
+      
+      const path = document.getElementById('ecg-path');
+      const modeEl = document.getElementById('ecg-mode');
+      const hrEl = document.getElementById('hr-display');
+      
+      if (path) {
+        path.classList.remove('ecg-normal', 'ecg-tachy', 'ecg-brady');
+        path.classList.add(`ecg-${mode}`);
+      }
+      
+      document.querySelectorAll('#btn-normal, #btn-tachy, #btn-brady').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`btn-${mode}`)?.classList.add('active');
+      
+      if (modeEl) {
+        modeEl.textContent = mode === 'normal' ? 'NORMAL' : mode === 'tachy' ? 'TACHYCARDIA' : 'BRADYCARDIA';
+        modeEl.style.background = mode === 'normal' ? 'rgba(0,255,204,0.1)' : mode === 'tachy' ? 'rgba(255,77,109,0.1)' : 'rgba(255,179,64,0.1)';
+        modeEl.style.color = mode === 'normal' ? 'var(--accent-primary)' : mode === 'tachy' ? 'var(--accent-danger)' : 'var(--accent-warning)';
+      }
+      
+      if (hrEl) {
+        hrEl.textContent = mode === 'normal' ? '72' : mode === 'tachy' ? '142' : '48';
+        hrEl.style.color = mode === 'normal' ? 'var(--accent-primary)' : mode === 'tachy' ? 'var(--accent-danger)' : 'var(--accent-warning)';
+      }
+      
+      if (ecgInterval) {
+        clearInterval(ecgInterval);
+        startECG();
+      }
+      
+      addActivity('system', `ECG mode: ${mode.toUpperCase()}`);
+    }
+
+    function updateVitals() {
+      const hr = document.getElementById('hr-display');
+      const bp = document.getElementById('bp-display');
+      const o2 = document.getElementById('o2-display');
+      const temp = document.getElementById('temp-display');
+      const rr = document.getElementById('rr-display');
+      
+      if (hr && ecgMode === 'normal') hr.textContent = Math.floor(68 + Math.random() * 10);
+      if (bp) bp.textContent = `${Math.floor(115 + Math.random() * 12)}/${Math.floor(75 + Math.random() * 8)}`;
+      if (o2) o2.textContent = Math.floor(96 + Math.random() * 3);
+      if (temp) temp.textContent = (97.5 + Math.random() * 1.5).toFixed(1);
+      if (rr) rr.textContent = Math.floor(14 + Math.random() * 5);
+    }
+
+    function generateFHIRObservation() {
+      const hr = document.getElementById('hr-display')?.textContent || '72';
+      const obs = {
+        resourceType: 'Observation',
+        id: 'obs-' + Math.random().toString(36).substr(2, 6),
+        status: 'final',
+        category: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/observation-category', code: 'vital-signs' }] }],
+        code: { coding: [{ system: 'http://loinc.org', code: '8867-4', display: 'Heart rate' }] },
+        subject: { reference: `Patient/${currentPatient.id}`, display: currentPatient.name },
+        effectiveDateTime: new Date().toISOString(),
+        valueQuantity: { value: parseInt(hr), unit: 'beats/min', system: 'http://unitsofmeasure.org', code: '/min' }
+      };
+      
+      addActivity('fhir', `Generated Observation/${obs.id}`);
+      showAchievement('FHIR Creator', 'Generated a FHIR observation');
+      return obs;
+    }
+
+    function simulateAlert() {
+      const list = document.getElementById('alerts-list');
+      if (!list) return;
+      
+      const alert = document.createElement('div');
+      alert.className = 'p-3 rounded-xl bg-[rgba(255,77,109,0.1)] border border-[rgba(255,77,109,0.3)] animate-slide-in';
+      alert.innerHTML = `
+        <div class="flex items-center gap-2">
+          <span class="status-dot status-error" style="width: 8px; height: 8px;"></span>
+          <span class="text-sm text-[var(--accent-danger)]">High heart rate detected</span>
+        </div>
+        <div class="text-xs text-[var(--fg-muted)] mt-1">${new Date().toLocaleTimeString()}</div>
+      `;
+      
+      list.insertBefore(alert, list.firstChild);
+      addActivity('system', 'ALERT: Abnormal vital signs');
+      showAchievement('Alert Handler', 'Responded to a clinical alert');
+    }
+
+    function resetMonitor() {
+      const list = document.getElementById('alerts-list');
+      if (list) {
+        list.innerHTML = `
+          <div class="p-3 rounded-xl bg-[rgba(0,232,157,0.1)] border border-[rgba(0,232,157,0.3)]">
+            <div class="flex items-center gap-2">
+              <span class="status-dot status-online" style="width: 8px; height: 8px;"></span>
+              <span class="text-sm text-[var(--accent-success)]">All vitals normal</span>
+            </div>
+          </div>
+        `;
+      }
+      setECGMode('normal');
+      updateVitals();
+      addActivity('system', 'Monitor reset');
+    }
+
+    // =============================================
+    // ANALYTICS
+    // =============================================
+    
+    function renderCharts() {
+      // Throughput Chart
+      const throughput = document.getElementById('throughput-chart');
+      if (throughput) {
+        throughput.innerHTML = Array.from({ length: 20 }, (_, i) => {
+          const height = Math.floor(30 + Math.random() * 70);
+          return `<div class="chart-bar flex-1 rounded-t" style="height: ${height}%; background: linear-gradient(to top, var(--accent-primary), var(--accent-secondary));"></div>`;
+        }).join('');
+      }
+      
+      // Agent Load
+      const agentLoad = document.getElementById('agent-load-chart');
+      if (agentLoad) {
+        agentLoad.innerHTML = Object.values(agentsData).map(agent => `
+          <div class="flex items-center gap-3">
+            <div class="w-16 text-xs truncate">${agent.protocol}</div>
+            <div class="flex-1 progress-bar"><div class="progress-fill" style="width: ${agent.load}%; background: ${agent.color}"></div></div>
+            <div class="w-10 text-xs text-right">${agent.load}%</div>
+          </div>
+        `).join('');
+      }
+      
+      // Response Time Chart
+      const response = document.getElementById('response-chart');
+      if (response) {
+        response.innerHTML = Array.from({ length: 20 }, (_, i) => {
+          const height = Math.floor(20 + Math.random() * 50);
+          return `<div class="chart-bar flex-1 rounded-t" style="height: ${height}%; background: linear-gradient(to top, var(--accent-tertiary), var(--accent-warning));"></div>`;
+        }).join('');
+      }
+    }
+
+    function startStatsUpdates() {
+      statsInterval = setInterval(() => {
+        // Update throughput bars
+        const bars = document.querySelectorAll('#throughput-chart .chart-bar');
+        bars.forEach(bar => {
+          bar.style.height = Math.floor(30 + Math.random() * 70) + '%';
+        });
+        
+        // Update agent loads
+        Object.values(agentsData).forEach(agent => {
+          agent.load = Math.max(5, Math.min(95, agent.load + (Math.random() - 0.5) * 10));
+        });
+        
+        const agentLoadEl = document.getElementById('agent-load-chart');
+        if (agentLoadEl) {
+          const loads = agentLoadEl.querySelectorAll('.progress-fill');
+          Object.values(agentsData).forEach((agent, i) => {
+            if (loads[i]) loads[i].style.width = agent.load + '%';
+          });
+        }
+        
+        // Update connection count
+        const connEl = document.getElementById('active-connections');
+        if (connEl) connEl.textContent = Math.floor(140 + Math.random() * 20);
+        
+        // Update success rate
+        const rateEl = document.getElementById('success-rate');
+        if (rateEl) rateEl.textContent = (99 + Math.random() * 0.9).toFixed(1) + '%';
+        
+      }, 2000);
+    }
+
+    // =============================================
+    // FHIR BUILDER
+    // =============================================
+    
+    function setResourceType(type) {
+      currentResourceType = type;
+      document.querySelectorAll('[data-type]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.type === type);
+      });
+      renderFHIRForm();
+    }
+
+    function renderFHIRForm() {
+      const form = document.getElementById('fhir-form');
+      const schema = resourceSchemas[currentResourceType];
+      if (!form || !schema) return;
+      
+      form.innerHTML = schema.map(field => `
+        <div>
+          <label class="block text-sm font-medium mb-1.5 text-[var(--fg-secondary)]">${field.label}</label>
+          ${field.type === 'select' ? `
+            <select id="field-${field.key}" class="w-full bg-[rgba(0,0,0,0.3)] border border-[var(--border-color)] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--accent-primary)] transition-colors" onchange="updateFHIRPreview()">
+              ${field.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+            </select>
+          ` : field.type === 'textarea' ? `
+            <textarea id="field-${field.key}" class="w-full bg-[rgba(0,0,0,0.3)] border border-[var(--border-color)] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--accent-primary)] transition-colors h-20" oninput="updateFHIRPreview()">${field.default()}</textarea>
+          ` : `
+            <input type="${field.type}" id="field-${field.key}" value="${field.default()}" class="w-full bg-[rgba(0,0,0,0.3)] border border-[var(--border-color)] rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--accent-primary)] transition-colors" oninput="updateFHIRPreview()">
+          `}
+        </div>
+      `).join('');
+      
+      updateFHIRPreview();
+    }
+
+    function updateFHIRPreview() {
+      const schema = resourceSchemas[currentResourceType];
+      if (!schema) return;
+      
+      const getValue = (key) => document.getElementById(`field-${key}`)?.value || '';
+      
+      let resource = { resourceType: currentResourceType };
+      
+      switch (currentResourceType) {
+        case 'Patient':
+          resource = {
+            resourceType: 'Patient',
+            id: getValue('id'),
+            active: true,
+            name: [{ use: 'official', family: getValue('familyName'), given: [getValue('givenName')] }],
+            gender: getValue('gender'),
+            birthDate: getValue('birthDate')
+          };
+          break;
+        case 'Observation':
+          resource = {
+            resourceType: 'Observation',
+            id: getValue('id'),
+            status: getValue('status'),
+            category: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/observation-category', code: getValue('category') }] }],
+            code: { coding: [{ system: 'http://loinc.org', code: getValue('code'), display: getValue('display') }] },
+            valueQuantity: { value: parseFloat(getValue('value')) || 0, unit: getValue('unit'), system: 'http://unitsofmeasure.org' }
+          };
+          break;
+        case 'MedicationRequest':
+          resource = {
+            resourceType: 'MedicationRequest',
+            id: getValue('id'),
+            status: getValue('status'),
+            intent: 'order',
+            medicationCodeableConcept: { text: getValue('medication') },
+            dosageInstruction: [{ text: getValue('dosage') }]
+          };
+          break;
+        case 'CarePlan':
+          resource = {
+            resourceType: 'CarePlan',
+            id: getValue('id'),
+            status: getValue('status'),
+            title: getValue('title'),
+            description: getValue('description')
+          };
+          break;
+        case 'DiagnosticReport':
+          resource = {
+            resourceType: 'DiagnosticReport',
+            id: getValue('id'),
+            status: getValue('status'),
+            category: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/v2-0074', code: getValue('category') }] }],
+            conclusion: getValue('conclusion')
+          };
+          break;
+      }
+      
+      currentFhirResource = resource;
+      const preview = document.getElementById('fhir-json');
+      if (preview) preview.innerHTML = syntaxHighlight(JSON.stringify(resource, null, 2));
+    }
+
+    function validateFHIR() {
+      const msg = document.getElementById('validation-msg');
+      if (!msg) return;
+      
+      const errors = [];
+      if (!currentFhirResource?.id) errors.push('Missing resource ID');
+      if (currentResourceType === 'Patient' && !currentFhirResource?.name?.[0]?.family) {
+        errors.push('Missing patient family name');
+      }
+      
+      msg.classList.remove('hidden');
+      
+      if (errors.length === 0) {
+        msg.className = 'mt-4 p-3 rounded-xl text-sm bg-[rgba(0,232,157,0.1)] border border-[rgba(0,232,157,0.3)] text-[var(--accent-success)]';
+        msg.textContent = 'Validation passed - FHIR R4 compliant';
+        addActivity('fhir', 'Resource validation: PASSED');
+        showAchievement('FHIR Expert', 'Validated a FHIR resource');
+        triggerConfetti();
+      } else {
+        msg.className = 'mt-4 p-3 rounded-xl text-sm bg-[rgba(255,77,109,0.1)] border border-[rgba(255,77,109,0.3)] text-[var(--accent-danger)]';
+        msg.innerHTML = `<strong>Validation errors:</strong><ul class="mt-1 list-disc list-inside">${errors.map(e => `<li>${e}</li>`).join('')}</ul>`;
+        addActivity('fhir', 'Resource validation: FAILED');
+      }
+    }
+
+    function copyFHIR() {
+      if (!currentFhirResource) return;
+      navigator.clipboard.writeText(JSON.stringify(currentFhirResource, null, 2));
+      showAchievement('Quick Copy', 'Copied FHIR resource to clipboard');
+    }
+
+    function downloadFHIR() {
+      if (!currentFhirResource) return;
+      const blob = new Blob([JSON.stringify(currentFhirResource, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${currentResourceType}-${currentFhirResource.id}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showAchievement('File Export', 'Downloaded a FHIR resource');
+    }
+
+    // =============================================
+    // SCROLL REVEAL
+    // =============================================
+    
+    function initScrollReveal() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) entry.target.classList.add('active');
+        });
+      }, { threshold: 0.1 });
+      
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    }
+
+    // =============================================
+    // INIT
+    // =============================================
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      initScrollReveal();
+      renderPatientList();
+      startECG();
+      setInterval(updateVitals, 3000);
+      renderFHIRForm();
+      renderCharts();
+      startStatsUpdates();
+      
+      setTimeout(() => {
+        showAchievement('Welcome', 'Platform initialized successfully');
+      }, 1500);
+    });
+
+    window.addEventListener('beforeunload', () => {
+      if (ecgInterval) clearInterval(ecgInterval);
+      if (statsInterval) clearInterval(statsInterval);
+    });
+  </script>
+</body>
+</html>
